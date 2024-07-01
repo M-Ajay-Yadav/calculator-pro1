@@ -157,7 +157,7 @@ function App() {
     overwrite: false,
   })
 
-  dispatch({ type:ACTIONS.ADD_DIGIT,payload: { digit: 1 }})
+  // dispatch({ type:ACTIONS.ADD_DIGIT,payload: { digit: 1 }})
   return(
     <div className="calculator-grid" >
       <div className="output">
