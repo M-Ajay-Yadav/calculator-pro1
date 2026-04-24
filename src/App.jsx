@@ -2,7 +2,6 @@ import { useReducer } from "react";
 import DigitButton from "./DigitButton";
 import OperationButton from "./OperationButton";
 import "./style.css";
-// import Routes from ".";
 
 export const ACTIONS = {
   ADD_DIGIT: "add-digit",
@@ -25,7 +24,7 @@ function reducer(state, { type, payload }) {
       if (payload.digit === "0" && state.currentOperand === "0") {
         return state;
       }
-      if (payload.digit === "." && state.currentOperand.includes(".")) {
+      if (payload.digit === "." && state.currentOperand?.includes(".")) {
         return state;
       }
       return {
@@ -52,7 +51,7 @@ function reducer(state, { type, payload }) {
           currentOperand: null,
         };
       }
-      // break;
+     
 
       return {
         ...state,
@@ -61,7 +60,12 @@ function reducer(state, { type, payload }) {
         currentOperand: null,
       };
     case ACTIONS.CLEAR:
-      return {};
+      return {
+        currentOperand: null,
+        previousOperand: null,
+        operation: null,
+        overwrite: false,
+      };
 
     case ACTIONS.DELETE_DIGIT:
       if (state.overwrite) {
@@ -73,7 +77,7 @@ function reducer(state, { type, payload }) {
       }
       if (state.currentOperand == null) return state;
       if (state.currentOperand.length === 1) {
-        return { ...state, currentOOperand: null };
+        return { ...state, currentOperand: null };
       }
 
       return {
@@ -98,9 +102,9 @@ function reducer(state, { type, payload }) {
       };
 
     default:
-      // Handle unexpected or unsupported types
+  
       console.error("Unsupported type: " + type);
-      return state; // or handle it as needed
+      return state; 
   }
 }
 
@@ -120,13 +124,12 @@ function evaluate({ currentOperand, previousOperand, operation }) {
       computation = prev * current;
       break;
     case "÷":
+      if ( current === 0 ) return "Error"; 
       computation = prev / current;
       break;
     default:
-      // Handle unexpected or unsupported operations
-      console.error("Unsupported operation: " + operation);
-      computation = ""; // or handle it as needed
-      break;
+
+      return "";
   }
 
   return computation.toString();
@@ -136,7 +139,8 @@ const INTEGER_FORMATTER = new Intl.NumberFormat("en-us", {
   maximumFractionDigits: 0,
 });
 function formatOperand(operand) {
-  if (operand == null) return;
+  if (operand == null) return "";
+ 
   const [integer, decimal] = operand.split(".");
   if (decimal == null) return INTEGER_FORMATTER.format(integer);
   return `${INTEGER_FORMATTER.format(integer)}.${decimal}`;
@@ -153,12 +157,11 @@ function App() {
     }
   );
 
-  // dispatch({ type:ACTIONS.ADD_DIGIT,payload: { digit: 1 }})
   return (
     <div className="calculator-grid">
       <div className="output">
         <div className="previous-operand">
-          {previousOperand} {operation}
+          {formatOperand(previousOperand)} {operation} 
         </div>
         <div className="current-Operand">{formatOperand(currentOperand)}</div>
       </div>
@@ -189,7 +192,10 @@ function App() {
       <DigitButton digit="9" dispatch={dispatch} />
       <OperationButton operation="-" dispatch={dispatch} />
 
-      <button>.</button>
+      <button onClick={
+        () => 
+          dispatch({type: ACTIONS.ADD_DIGIT, payload: {digit:"."}})
+      }>.</button>
       <DigitButton digit="0" dispatch={dispatch} />
       <button
         className="span-two"
